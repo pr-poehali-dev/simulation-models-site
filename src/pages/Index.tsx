@@ -1,12 +1,33 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Slider } from '@/components/ui/slider';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 
 const Index = () => {
+  const [modelType, setModelType] = useState('');
+  const [complexity, setComplexity] = useState([3]);
+  const [timeline, setTimeline] = useState([2]);
+  const [teamSize, setTeamSize] = useState([2]);
+
+  const calculatePrice = () => {
+    const basePrice = {
+      'discrete': 800000,
+      'agent': 1200000,
+      'system': 1000000
+    };
+
+    const complexityMultiplier = complexity[0] / 5;
+    const timelineMultiplier = timeline[0] === 1 ? 1.5 : timeline[0] === 2 ? 1.2 : timeline[0] === 3 ? 1 : 0.85;
+    const teamMultiplier = teamSize[0] / 5;
+
+    const base = basePrice[modelType as keyof typeof basePrice] || 1000000;
+    return Math.round(base * (0.5 + complexityMultiplier) * timelineMultiplier * (0.7 + teamMultiplier));
+  };
   const services = [
     {
       title: "Дискретно-событийное моделирование",
@@ -74,6 +95,7 @@ const Index = () => {
               <a href="#home" className="text-slate-300 hover:text-blue-400 transition-colors">Главная</a>
               <a href="#services" className="text-slate-300 hover:text-blue-400 transition-colors">Услуги</a>
               <a href="#portfolio" className="text-slate-300 hover:text-blue-400 transition-colors">Портфолио</a>
+              <a href="#calculator" className="text-slate-300 hover:text-blue-400 transition-colors">Калькулятор</a>
               <a href="#contact" className="text-slate-300 hover:text-blue-400 transition-colors">Контакты</a>
             </nav>
           </div>
@@ -212,6 +234,215 @@ const Index = () => {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Price Calculator Section */}
+      <section id="calculator" className="py-24 bg-slate-800/30">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <Badge className="mb-4 bg-blue-600/20 text-blue-300 border-blue-500/30">Калькулятор стоимости</Badge>
+              <h3 className="text-4xl font-bold text-white mb-4">Рассчитайте стоимость проекта</h3>
+              <p className="text-xl text-slate-400 max-w-2xl mx-auto">
+                Получите предварительную оценку стоимости разработки имитационной модели для вашей задачи
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+              {/* Calculator Form */}
+              <Card className="bg-slate-800/80 border-slate-700">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center">
+                    <Icon name="Calculator" size={24} className="mr-3 text-blue-400" />
+                    Параметры проекта
+                  </CardTitle>
+                  <CardDescription className="text-slate-400">
+                    Укажите характеристики вашего проекта для расчета стоимости
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium text-white">Тип моделирования</label>
+                    <Select value={modelType} onValueChange={setModelType}>
+                      <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                        <SelectValue placeholder="Выберите тип модели" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-700 border-slate-600">
+                        <SelectItem value="discrete" className="text-white hover:bg-slate-600">
+                          Дискретно-событийное моделирование
+                        </SelectItem>
+                        <SelectItem value="agent" className="text-white hover:bg-slate-600">
+                          Агентное моделирование
+                        </SelectItem>
+                        <SelectItem value="system" className="text-white hover:bg-slate-600">
+                          Системная динамика
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-medium text-white">Сложность модели</label>
+                      <Badge variant="outline" className="border-blue-500/30 text-blue-300">
+                        {complexity[0]}/5
+                      </Badge>
+                    </div>
+                    <Slider
+                      value={complexity}
+                      onValueChange={setComplexity}
+                      max={5}
+                      min={1}
+                      step={1}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-slate-400">
+                      <span>Простая</span>
+                      <span>Очень сложная</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-medium text-white">Сроки разработки</label>
+                      <Badge variant="outline" className="border-blue-500/30 text-blue-300">
+                        {timeline[0] === 1 ? 'Срочно' : timeline[0] === 2 ? 'Стандартно' : timeline[0] === 3 ? 'Комфортно' : 'Не спешим'}
+                      </Badge>
+                    </div>
+                    <Slider
+                      value={timeline}
+                      onValueChange={setTimeline}
+                      max={4}
+                      min={1}
+                      step={1}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-slate-400">
+                      <span>1-2 мес</span>
+                      <span>6+ мес</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-medium text-white">Размер команды</label>
+                      <Badge variant="outline" className="border-blue-500/30 text-blue-300">
+                        {teamSize[0]} чел.
+                      </Badge>
+                    </div>
+                    <Slider
+                      value={teamSize}
+                      onValueChange={setTeamSize}
+                      max={5}
+                      min={1}
+                      step={1}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-slate-400">
+                      <span>1 специалист</span>
+                      <span>5+ специалистов</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Price Result */}
+              <div className="space-y-6">
+                <Card className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 border-blue-500/30">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center">
+                      <Icon name="DollarSign" size={24} className="mr-3 text-green-400" />
+                      Предварительная стоимость
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {modelType ? (
+                      <div className="space-y-4">
+                        <div className="text-center">
+                          <div className="text-4xl font-bold text-white mb-2">
+                            {calculatePrice().toLocaleString('ru-RU')} ₽
+                          </div>
+                          <p className="text-slate-300">Ориентировочная стоимость проекта</p>
+                        </div>
+                        
+                        <div className="space-y-3 pt-4 border-t border-slate-600">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-slate-400">Базовая стоимость:</span>
+                            <span className="text-white">
+                              {modelType === 'discrete' && '800,000 ₽'}
+                              {modelType === 'agent' && '1,200,000 ₽'} 
+                              {modelType === 'system' && '1,000,000 ₽'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-slate-400">Коэффициент сложности:</span>
+                            <span className="text-white">×{(0.5 + complexity[0] / 5).toFixed(1)}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-slate-400">Коэффициент сроков:</span>
+                            <span className="text-white">
+                              ×{timeline[0] === 1 ? '1.5' : timeline[0] === 2 ? '1.2' : timeline[0] === 3 ? '1.0' : '0.85'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-slate-400">Размер команды:</span>
+                            <span className="text-white">×{(0.7 + teamSize[0] / 5).toFixed(1)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <Icon name="Calculator" size={48} className="text-slate-600 mx-auto mb-4" />
+                        <p className="text-slate-400">Выберите тип моделирования для расчета стоимости</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-slate-800/80 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="text-white text-lg">Что входит в стоимость</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-center text-slate-300">
+                        <Icon name="CheckCircle" size={16} className="text-green-400 mr-2 flex-shrink-0" />
+                        Анализ требований и техническое задание
+                      </li>
+                      <li className="flex items-center text-slate-300">
+                        <Icon name="CheckCircle" size={16} className="text-green-400 mr-2 flex-shrink-0" />
+                        Разработка архитектуры модели
+                      </li>
+                      <li className="flex items-center text-slate-300">
+                        <Icon name="CheckCircle" size={16} className="text-green-400 mr-2 flex-shrink-0" />
+                        Программирование и тестирование
+                      </li>
+                      <li className="flex items-center text-slate-300">
+                        <Icon name="CheckCircle" size={16} className="text-green-400 mr-2 flex-shrink-0" />
+                        Калибровка и валидация модели
+                      </li>
+                      <li className="flex items-center text-slate-300">
+                        <Icon name="CheckCircle" size={16} className="text-green-400 mr-2 flex-shrink-0" />
+                        Документация и обучение
+                      </li>
+                      <li className="flex items-center text-slate-300">
+                        <Icon name="CheckCircle" size={16} className="text-green-400 mr-2 flex-shrink-0" />
+                        3 месяца технической поддержки
+                      </li>
+                    </ul>
+                  </CardContent>
+                </Card>
+                
+                {modelType && (
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3">
+                    <Icon name="MessageCircle" size={16} className="mr-2" />
+                    Обсудить проект за {calculatePrice().toLocaleString('ru-RU')} ₽
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </section>
